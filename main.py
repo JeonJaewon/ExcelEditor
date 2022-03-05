@@ -1,3 +1,4 @@
+from types import NoneType
 import openpyxl
 from openpyxl.styles import PatternFill
 from openpyxl import Workbook
@@ -34,7 +35,7 @@ addressCol = IntVar()
 radios = []
 for i in range (0,8):
     radios.append(Radiobutton(frame_col, text=chr(ord("A")+i), variable=addressCol, value=i))
-    if i == 3:
+    if i == 4:
         radios[i].invoke()
     radios[i].pack(side=LEFT)
 frame_col.pack(pady=20)
@@ -52,6 +53,10 @@ def start():
     curColor = GRAY
     for row in sheet.rows:
         curAddr = row[addressCol.get()].value
+        # 비어있는 마지막 라인을 읽는 문제 방지
+        if isinstance(curAddr, NoneType):
+            break
+        curAddr = [x for x in curAddr.split(' ') if x != '']
         if (prevAddr == curAddr):  # 내 윗칸과 주소가 같다면
             for cell in row:
                 cell.fill = PatternFill(start_color=curColor, fill_type="solid")  # 같은색으로 칠하기
@@ -60,9 +65,6 @@ def start():
             for cell in row:
                 cell.fill = PatternFill(start_color=curColor, fill_type="solid")
         prevAddr = curAddr
-
-    #  띄어쓰기도 인식해서 주소가 '완전히 동일'하게 입력되어야함.
-    #  ex) '광진구 ' 와 '광진구' 는 다른 주소로 인식함.
     print("done")
     messagebox.showinfo("성공", "작업을 완료했습니다.")
     book.save("송장출력.xlsx")
